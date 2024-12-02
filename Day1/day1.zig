@@ -3,6 +3,8 @@ const Allocator = std.mem.Allocator;
 const expect = std.testing.expect;
 const ArrayList = std.ArrayList;
 
+const Utils = @import("Utils.zig");
+
 const sort = std.mem.sort;
 const dbg = std.debug;
 
@@ -15,22 +17,8 @@ pub fn main() !void {
     const allocator = gpa.allocator();
     defer _ = gpa.deinit();
 
-    //? Get file
-    const file = try std.fs.cwd().openFile(
-        "Data.txt",
-        .{ .mode = .read_only },
-    );
-    defer file.close();
 
-    //? Get file size
-    const fileStats = try file.stat();
-    const fileSize = fileStats.size;
-    try writer.print("File Size: {d} \n", .{fileSize});
-
-    //? Read Data into buffer
-    var reader = file.reader();
-
-    const data: []u8 = try reader.readAllAlloc(allocator, fileSize * 2);
+    const data = try Utils.readFileIntoArr(allocator, "Data.txt");
     defer allocator.free(data);
 
     //? Use data
@@ -72,7 +60,7 @@ pub fn main() !void {
     var sum: LType = 0;
 
     for (firstArray, 0..) |firstElement, index| {
-        sum = sum + abs(firstElement - secondArray[index]);
+        sum = sum + Utils.abs(LType, firstElement - secondArray[index]);
     }
 
     var simSum: LType = 0;
@@ -95,27 +83,6 @@ pub fn main() !void {
 }
 
 
-pub fn abs(num: LType) LType {
-    if (num < 0) {
-        return num * -1;
-    }
-    else return num;
-}
 
 
-pub fn printU64(arr: []LType) !void {
-    const writer = std.io.getStdOut().writer();
 
-    for (arr) |x| {
-        try writer.print("{d} \n", .{x});
-    }
-}
-
-
-pub fn printArrL(list: ArrayList(LType)) !void {
-    const writer = std.io.getStdOut().writer();
-
-    for (list.items) |x| {
-        try writer.print("{d} \n", .{x});
-    }
-}
