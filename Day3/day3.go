@@ -4,8 +4,6 @@ import (
 	"fmt"
 	"os"
 	"strconv"
-	_ "strings"
-	_ "time"
 )
 
 func main() {
