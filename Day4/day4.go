@@ -1,7 +1,7 @@
 package main
 
 import (
-	"fmt"
+	_ "fmt"
 	"os"
 	"strings"
 )
@@ -22,18 +22,18 @@ func main() {
 	for i, line := range lines {
 		lines[i] = strings.ReplaceAll(line, "\r", "")
 	}
-	//mid_y, mid_x := 4
+
 	directions := [...]string{"N", "NE", "E", "SE", "S", "SW", "W", "NW", "N"}
 	_ = directions
-	
-	test_line := lines[4]
 
-
-
-	for t := 4; t < len(test_line)-1; t++ {
-		fmt.Printf("%v -> %v \n", string(lines[t][t]), walkNW(lines, t, t))
+	for y, line := range lines {
+		for x, char := range line {
+			str := string(char)
+			_ = x
+			_ = y
+			if (str != "X") {continue}
+		}
 	}
-
 
 // 	for y, line := range lines {
 // 		fmt.Printf("Y: %v\n", y)
@@ -54,18 +54,34 @@ func main() {
 // 	}
 }
 
-func walkFullDir(lines []string, y_start int, x_start int, dir string) string {
-	possible := checkDirection(lines, y_start, x_start, dir)
+func processOneChar(lines []string, y int, x int) int {
+	directions := [...]string{"N", "NE", "E", "SE", "S", "SW", "W", "NW", "N"}
+	hitSum := 0
 
-	if !possible {return ""}
+	for _, dir := range directions {
+		if !checkDirection(lines, y, x, dir) {continue}
 
-	wholeString := ""
-	for i := 0; i <=3; i++ {
-		wholeString += walkDirection(lines, y_start, x_start, dir)
+
 	}
 
-	return wholeString
+	return hitSum
 }
+
+func walkFullDir(lines []string, y_start int, x_start int, dir string) int {
+	isPossible := checkDirection(lines, y_start, x_start, dir)
+
+	if !isPossible {return 0}
+
+	needed := [...]string{"M", "A", "S"}
+
+	for i := 0; i <=3; i++ {
+		current := walkDirection(lines, y_start, x_start, dir)
+		if current != needed[i] {return 0}
+	}
+
+	return 1
+}
+
 
 func checkDirection(lines []string, y_start int, x_start int, dir string) bool {
 	switch dir {
@@ -89,62 +105,27 @@ func checkDirection(lines []string, y_start int, x_start int, dir string) bool {
 	return true
 }
 
+
 func walkDirection(lines []string, y_start int, x_start int, dir string) string {
 	switch dir {
 	case "N":
-		return walkNorth(lines, y_start, x_start)
+		return string(lines[y_start-1][x_start])
 	case "NE":
-		return walkNE(lines, y_start, x_start)
+		return string(lines[y_start-1][x_start+1])
 	case "E":
-		return walkEast(lines, y_start, x_start)
+		return string(lines[y_start][x_start+1])
 	case "SE":
-		return walkSE(lines, y_start, x_start)
+		return string(lines[y_start+1][x_start+1])
 	case "S":
-		return walkSouth(lines, y_start, x_start)
+		return string(lines[y_start+1][x_start])
 	case "SW":
-		return walkSW(lines, y_start, x_start)
+		return string(lines[y_start+1][x_start-1])
 	case "W":
-		return walkWest(lines, y_start, x_start)
+		return string(lines[y_start][x_start-1])
 	case "NW":
-		return walkNW(lines, y_start, x_start)
+		return string(lines[y_start-1][x_start-1])
 	}
 	return ""
-}
-
-//? Next char in direction
-func walkNorth(lines []string, y int, x int) string {
-	return string(lines[y-1][x])
-}
-
-func walkNE(lines []string, y int, x int) string {
-	return string(lines[y-1][x+1])
-}
-
-//Todo test
-func walkEast(lines []string, y int, x int) string {
-	return string(lines[y][x+1])
-}
-
-func walkSE(lines []string, y int, x int) string {
-	return string(lines[y+1][x+1])
-}
-
-func walkSouth(lines []string, y int, x int) string {
-	return string(lines[y+1][x])
-}
-
-func walkSW(lines []string, y int, x int) string {
-	return string(lines[y+1][x-1])
-}
-
-//TODO test
-func walkWest(lines []string, y int, x int) string {
-	return string(lines[y][x-1])
-}
-
-
-func walkNW(lines []string, y int, x int) string {
-	return string(lines[y-1][x-1])
 }
 
 
