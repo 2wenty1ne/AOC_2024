@@ -1,0 +1,9 @@
+I---O---P
+-I--O--P-
+--I-O-P--
+---IOP---
+LLLLMRRRR
+---KUT---
+--K-U-T--
+-K--U--T-
+K---U---T

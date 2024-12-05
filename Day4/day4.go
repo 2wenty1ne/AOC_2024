@@ -22,11 +22,12 @@ func main() {
 	for i, line := range lines {
 		lines[i] = strings.ReplaceAll(line, "\r", "")
 	}
-
+	//mid_y, mid_x := 4
 	directions := [...]string{"N", "NE", "E", "SE", "S", "SW", "W", "NW", "N"}
 	_ = directions
 	
 	test_line := lines[4]
+
 
 
 	for t := 4; t < len(test_line)-1; t++ {
@@ -53,6 +54,19 @@ func main() {
 // 	}
 }
 
+func walkFullDir(lines []string, y_start int, x_start int, dir string) string {
+	possible := checkDirection(lines, y_start, x_start, dir)
+
+	if !possible {return ""}
+
+	wholeString := ""
+	for i := 0; i <=3; i++ {
+		wholeString += walkDirection(lines, y_start, x_start, dir)
+	}
+
+	return wholeString
+}
+
 func checkDirection(lines []string, y_start int, x_start int, dir string) bool {
 	switch dir {
 	case "N":
@@ -72,9 +86,30 @@ func checkDirection(lines []string, y_start int, x_start int, dir string) bool {
 	case "NW":
 		if !checkSizeNW(x_start, y_start) {return false}
 	}
-
+	return true
 }
 
+func walkDirection(lines []string, y_start int, x_start int, dir string) string {
+	switch dir {
+	case "N":
+		return walkNorth(lines, y_start, x_start)
+	case "NE":
+		return walkNE(lines, y_start, x_start)
+	case "E":
+		return walkEast(lines, y_start, x_start)
+	case "SE":
+		return walkSE(lines, y_start, x_start)
+	case "S":
+		return walkSouth(lines, y_start, x_start)
+	case "SW":
+		return walkSW(lines, y_start, x_start)
+	case "W":
+		return walkWest(lines, y_start, x_start)
+	case "NW":
+		return walkNW(lines, y_start, x_start)
+	}
+	return ""
+}
 
 //? Next char in direction
 func walkNorth(lines []string, y int, x int) string {
@@ -85,8 +120,9 @@ func walkNE(lines []string, y int, x int) string {
 	return string(lines[y-1][x+1])
 }
 
-func walkEast(line string, x int) string {
-	return string(line[x+1])
+//Todo test
+func walkEast(lines []string, y int, x int) string {
+	return string(lines[y][x+1])
 }
 
 func walkSE(lines []string, y int, x int) string {
@@ -101,9 +137,11 @@ func walkSW(lines []string, y int, x int) string {
 	return string(lines[y+1][x-1])
 }
 
-func walkWest(line string, x int) string {
-	return string(line[x-1])
+//TODO test
+func walkWest(lines []string, y int, x int) string {
+	return string(lines[y][x-1])
 }
+
 
 func walkNW(lines []string, y int, x int) string {
 	return string(lines[y-1][x-1])
