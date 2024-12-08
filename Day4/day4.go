@@ -1,14 +1,14 @@
 package main
 
 import (
-	_ "fmt"
+	"fmt"
 	"os"
 	"strings"
 )
 
 
 func main() {
-	file, err := os.ReadFile("testData.txt")
+	file, err := os.ReadFile("Data.txt")
 
 	if err != nil {
 		panic("Error opening file, exeting!")
@@ -23,153 +23,190 @@ func main() {
 		lines[i] = strings.ReplaceAll(line, "\r", "")
 	}
 
-	directions := [...]string{"N", "NE", "E", "SE", "S", "SW", "W", "NW", "N"}
-	_ = directions
+
+	//? Star one
+	totalHitSumStarOne := 0
 
 	for y, line := range lines {
 		for x, char := range line {
 			str := string(char)
-			_ = x
-			_ = y
+
 			if (str != "X") {continue}
+
+			totalHitSumStarOne += processOneCharStarOne(lines, y, x)
 		}
 	}
+	fmt.Printf("Total Hits first star: %v \n", totalHitSumStarOne)
 
-// 	for y, line := range lines {
-// 		fmt.Printf("Y: %v\n", y)
-// 		for x, char := range line {
-// 			str := string(char)
-// 			if (str != "M") {continue}
+	processOneCharStarTwo(lines, 3, 6)
 
-// 			sizeLeft := checkSizeWest(x)
-// 			sizeRight := checkSizeEast(lines, x)
-// 			fmt.Printf("Hor: %v - %v - %v \n", sizeLeft, x, sizeRight)
+	
+	//? Star two
+	totalHitSumStarTwo := 0
 
-// 			sizeUp := checkSizeNorth(y)
-// 			sizeDown := checkSizeSouth(lines, y)
-// 			fmt.Printf("Vert: %v - %v - %v \n", sizeUp, y, sizeDown)
+	for y, line := range lines {
+		for x, char := range line {
+			str := string(char)
 
-// 			fmt.Println()
-// 		}
-// 	}
+			if (str != "A") {continue}
+
+			totalHitSumStarTwo += processOneCharStarTwo(lines, y, x)
+		}
+	}
+	fmt.Printf("Total Hits second star: %v \n", totalHitSumStarTwo)
 }
 
-func processOneChar(lines []string, y int, x int) int {
-	directions := [...]string{"N", "NE", "E", "SE", "S", "SW", "W", "NW", "N"}
+
+func processOneCharStarTwo(lines []string, y int, x int) int {
+	mCount := 0
+	sCount := 0
+
+	_ = mCount
+	_ = sCount
+
+
+	directions := [...]string{"NE", "SE", "SW", "NW"}
+
+	for _, dir := range directions {
+		if !checkDirection(lines, y, x, dir, 2) {continue}
+		currrent, _, _ := walkDirection(lines, y, x, dir)
+		if currrent == "S" {sCount++}
+		if currrent == "M" {mCount++}
+	}
+
+	if sCount == 2 && mCount == 2 {
+		return 1
+	}
+
+	return 0
+}
+
+
+func processOneCharStarOne(lines []string, y int, x int) int {
+	directions := [...]string{"N", "NE", "E", "SE", "S", "SW", "W", "NW"}
 	hitSum := 0
 
 	for _, dir := range directions {
-		if !checkDirection(lines, y, x, dir) {continue}
-
-
+		if !checkDirection(lines, y, x, dir, 4) {continue}
+		hitSum += walkFullDir(lines, y, x, dir)
 	}
-
 	return hitSum
 }
 
-func walkFullDir(lines []string, y_start int, x_start int, dir string) int {
-	isPossible := checkDirection(lines, y_start, x_start, dir)
 
-	if !isPossible {return 0}
-
+func walkFullDir(lines []string, y int, x int, dir string) int {
 	needed := [...]string{"M", "A", "S"}
 
-	for i := 0; i <=3; i++ {
-		current := walkDirection(lines, y_start, x_start, dir)
+	for i := 0; i <=2; i++ {
+		current, y_new, x_new := walkDirection(lines, y, x, dir)
+		y = y_new
+		x = x_new
 		if current != needed[i] {return 0}
 	}
-
 	return 1
 }
 
 
-func checkDirection(lines []string, y_start int, x_start int, dir string) bool {
+func checkDirection(lines []string, y int, x int, dir string, dist int) bool {
 	switch dir {
 	case "N":
-		if !checkSizeNorth(y_start) {return false}
+		if !checkSizeNorth(y, dist) {return false}
 	case "NE":
-		if !checkSizeNE(lines, x_start, y_start) {return false}
+		if !checkSizeNE(lines, x, y, dist) {return false}
 	case "E":
-		if !checkSizeEast(lines, x_start) {return false}
+		if !checkSizeEast(lines, x, dist) {return false}
 	case "SE":
-		if !checkSizeSE(lines, x_start, y_start) {return false}
+		if !checkSizeSE(lines, x, y, dist) {return false}
 	case "S":
-		if !checkSizeSouth(lines, y_start) {return false}
+		if !checkSizeSouth(lines, y, dist) {return false}
 	case "SW":
-		if !checkSizeSW(lines, x_start, y_start) {return false}
+		if !checkSizeSW(lines, x, y, dist) {return false}
 	case "W":
-		if !checkSizeWest(x_start) {return false}
+		if !checkSizeWest(x, dist) {return false}
 	case "NW":
-		if !checkSizeNW(x_start, y_start) {return false}
+		if !checkSizeNW(x, y, dist) {return false}
+	default:
+		panic("Unknown direction input into checkDirection")
 	}
 	return true
 }
 
 
-func walkDirection(lines []string, y_start int, x_start int, dir string) string {
+func walkDirection(lines []string, y int, x int, dir string) (string, int, int) {
 	switch dir {
 	case "N":
-		return string(lines[y_start-1][x_start])
+		y := y-1
+		return string(lines[y][x]), y, x
 	case "NE":
-		return string(lines[y_start-1][x_start+1])
+		y := y-1
+		x := x+1
+		return string(lines[y][x]), y, x
 	case "E":
-		return string(lines[y_start][x_start+1])
+		x := x+1
+		return string(lines[y][x]), y, x
 	case "SE":
-		return string(lines[y_start+1][x_start+1])
+		y := y+1
+		x := x+1
+		return string(lines[y][x]), y, x
 	case "S":
-		return string(lines[y_start+1][x_start])
+		y := y+1
+		return string(lines[y][x]), y, x
 	case "SW":
-		return string(lines[y_start+1][x_start-1])
+		y := y+1
+		x := x-1
+		return string(lines[y][x]), y, x
 	case "W":
-		return string(lines[y_start][x_start-1])
+		x := x-1
+		return string(lines[y][x]), y, x
 	case "NW":
-		return string(lines[y_start-1][x_start-1])
+		y := y-1
+		x := x-1
+		return string(lines[y][x]), y, x
 	}
-	return ""
+	return "", 0, 0
 }
 
 
 //? Check directions
-func checkSizeNorth(y int) bool {
-	if y < 3 {return false}
+func checkSizeNorth(y int, dist int) bool {
+	if y < dist-1 {return false} //? Was 3
 
 	return true
 }
 
-func checkSizeEast(lines []string, x int) bool {
-	remainingRight := len(lines[x]) - x //? 10 - 1
-
-	if remainingRight < 4 {return false}
+func checkSizeEast(lines []string, x int, dist int) bool {
+	remainingRight := len(lines[x]) - x
+	if remainingRight < dist {return false} //? Was 4
 
 	return true
 }
 
-func checkSizeSouth(lines []string, y int) bool {
+func checkSizeSouth(lines []string, y int, dist int) bool {
 	remainingDown := len(lines[y]) - y
 
-	if remainingDown < 4 {return false}
+	if remainingDown < dist {return false} //? Was 4
 
 	return true
 }
 
-func checkSizeWest(x int) bool {
-	if x < 3 {return false}
+func checkSizeWest(x int, dist int) bool {
+	if x < dist-1 {return false}
 
 	return true
 }
 
-func checkSizeNE(lines []string, x int, y int) bool {
-	return checkSizeNorth(y) && checkSizeEast(lines, x)
+func checkSizeNE(lines []string, x int, y int, dist int) bool {
+	return checkSizeNorth(y, dist) && checkSizeEast(lines, x, dist)
 }
 
-func checkSizeSE(lines []string, x int, y int) bool {
-	return checkSizeEast(lines, x) && checkSizeSouth(lines, y)
+func checkSizeSE(lines []string, x int, y int, dist int) bool {
+	return checkSizeEast(lines, x, dist) && checkSizeSouth(lines, y, dist)
 }
 
-func checkSizeSW(lines []string, x int, y int) bool {
-	return checkSizeSouth(lines, y) && checkSizeWest(x)
+func checkSizeSW(lines []string, x int, y int, dist int) bool {
+	return checkSizeSouth(lines, y, dist) && checkSizeWest(x, dist)
 }
 
-func checkSizeNW(x int, y int) bool {
-	return checkSizeWest(x) && checkSizeNorth(y)
+func checkSizeNW(x int, y int, dist int) bool {
+	return checkSizeWest(x, dist) && checkSizeNorth(y, dist)
 }

@@ -1,8 +1,8 @@
 I---O---P
 -I--O--P-
 --I-O-P--
----IOP---
-LLLLMRRRR
+---IMP---
+LLLLXRRRR
 ---KUT---
 --K-U-T--
 -K--U--T-
